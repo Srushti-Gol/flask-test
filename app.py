@@ -9,7 +9,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 def hello_world():
     return 'Hello from Srushti'
  
-# CropRecModel = joblib.load('./models/CropRecModel.joblib')
+CropRecModel = joblib.load('./models/CropRecModel.joblib')
 # @app.route('/predictCrop', methods=['POST'])
 # def predict_crop():
 #     data = request.get_json()
