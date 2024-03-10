@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 
+
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
@@ -79,3 +80,6 @@ def predict_crop():
     
     return jsonify(report), 200
 
+
+if __name__ == "__main__":
+    app.run(debug=True)
