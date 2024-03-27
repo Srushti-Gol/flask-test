@@ -6,6 +6,10 @@ import os
 from dotenv import load_dotenv
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 from datetime import timedelta
+import numpy as np
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import image
+import io
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -94,3 +98,24 @@ def predict_crop():
     prediction = CropRecModel.predict([features])
     
     return jsonify({"Prediction" : prediction[0]}), 200
+
+loaded_model = load_model('./models/plantDisease_model')
+class_names = ['brown spots', 'deficiency calcium', 'xanthomonas', 'stemphylium solani', 'mosaic vena kuning', 'virus king keriting']
+@app.route('/predictDisease', methods=['POST'])
+def predict_disease():
+    try:
+        file = request.files['image']
+        img_bytes = file.read()
+        img = image.load_img(io.BytesIO(img_bytes), target_size=(150, 150)) 
+        img_array = image.img_to_array(img)
+        img_array = np.expand_dims(img_array, axis=0) / 255.0  
+        predictions = loaded_model.predict(img_array)
+        print(predictions)
+        predicted_class_index = np.argmax(predictions)
+        predicted_class_name = class_names[predicted_class_index]
+        
+        return jsonify({"Prediction" : predicted_class_name}), 200
+    
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
